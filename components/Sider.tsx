@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import getConfig from "next/config";
 import styled from "styled-components";
 import { Menu, Layout, Button } from "antd";
-import { HomeOutlined, BarsOutlined, SnippetsOutlined, LogoutOutlined } from "@ant-design/icons";
+import { HomeOutlined, BarsOutlined, LogoutOutlined } from "@ant-design/icons";
 import Link from "next/link";
 import { SiderProps } from "antd/lib/layout";
 import { signOut } from "next-auth/client";
@@ -25,19 +25,14 @@ type Route = {
 
 const Routes: Route[] = [
   {
-    name: "Inicio",
+    name: "Home",
     icon: <HomeOutlined />,
     url: "/admin",
   },
   {
-    name: "Workshops",
+    name: "Contracts",
     icon: <BarsOutlined />,
-    url: "/admin/workshops",
-  },
-  {
-    name: "Publicaciones",
-    icon: <SnippetsOutlined />,
-    url: "/admin/posts",
+    url: "/admin/contracts",
   },
 ];
 
@@ -52,9 +47,12 @@ const Sider = (): JSX.Element => {
             <Link href={route.url}>{route.name}</Link>
           </Menu.Item>
         ))}
-        <Menu.Item icon={<LogoutOutlined />} style={{ position: "absolute", bottom: "48px" }}>
+        <Menu.Item
+          icon={<LogoutOutlined />}
+          style={{ position: "absolute", bottom: "48px", width: "100%" }}
+        >
           <Button type="link" onClick={() => signOut({ redirect: SITE_URL })}>
-            Cerrar sesión
+            Logout
           </Button>
         </Menu.Item>
       </DefaultMenu>

@@ -7,7 +7,7 @@ const StyledFooter = styled(ANTDFooter)`
   padding: ${({ theme }) => theme.spaces[4]}rem ${({ theme }) => theme.spaces[4] * 3}rem;
   font-size: ${({ theme }) => theme.spaces[6]}rem;
   text-align: center;
-  color: ${({ theme }) => theme.colors.purple[7]};
+  color: ${({ theme }) => theme.colors.primary[7]};
 
   a {
     color: inherit;

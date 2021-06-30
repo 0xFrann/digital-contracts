@@ -9,7 +9,7 @@ const theme = {
   colors: {
     ...AntDColors,
     primary: [
-      ...AntDColors.cyan,
+      ...AntDColors.red,
     ]
   },
   spaces: spacing.spaces,
@@ -17,7 +17,7 @@ const theme = {
     // Custom variables
     baseUnit: spacing.baseUnit,
     // Ant Design Variables
-    primaryColor: AntDColors.cyan.primary,
+    primaryColor: AntDColors.red.primary,
     borderColorBase: neutrals[4],
     borderColorSplit: neutrals[3],
   },
@@ -30,7 +30,7 @@ const modifiedVariables = {
   "@border-color-base": theme.default.borderColorBase,
   "@border-color-split": theme.default.borderColorSplit,
   "@border-radius-base": `${theme.default.baseUnit}px`,
-  "@layout-body-background": theme.colors.primary[3],
+  "@layout-body-background": theme.colors.neutrals[3],
   "@layout-footer-background": "transparent",
   "@layout-header-background": theme.colors.primary[9],
   "@layout-trigger-background": theme.colors.primary[8],
