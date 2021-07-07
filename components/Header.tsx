@@ -1,31 +1,19 @@
-import { PageHeader } from "antd";
+import { PageHeader, PageHeaderProps } from "antd";
 import styled from "styled-components";
-
-const StyledHeader = styled.div`
-  background: ${({ theme }) => theme.colors.neutrals[0]};
-  box-shadow: 0 -80px 64px 64px ${({ theme }) => theme.colors.primary};
-`;
 
 const StyledPageHeader = styled(PageHeader)`
   padding: ${({ theme }) => theme.spaces[8]}rem;
-  .ant-page-header-heading-title:first-letter {
-    text-transform: uppercase;
+  .ant-page-header-heading-title {
+    font-size: ${({ theme }) => theme.default.spaces[8] * 2}rem;
+
+    &:first-letter {
+      text-transform: uppercase;
+    }
   }
 `;
 
-interface IHeaderProps {
-  title: string;
-  description?: string;
-}
+type IHeaderProps = PageHeaderProps;
 
-const Header = ({ title, description }: IHeaderProps): JSX.Element => (
-  <StyledHeader>
-    <StyledPageHeader title={title} subTitle={description} />
-  </StyledHeader>
-);
-
-Header.defaultProps = {
-  description: "",
-};
+const Header = (props: IHeaderProps): JSX.Element => <StyledPageHeader {...props} />;
 
 export default Header;

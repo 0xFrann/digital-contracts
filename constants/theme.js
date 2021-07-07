@@ -16,6 +16,7 @@ const theme = {
   default: {
     // Custom variables
     baseUnit: spacing.baseUnit,
+    spaces: spacing.spaces,
     // Ant Design Variables
     primaryColor: AntDColors.red.primary,
     borderColorBase: neutrals[4],

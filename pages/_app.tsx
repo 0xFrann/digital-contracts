@@ -8,27 +8,37 @@ import { theme } from "../constants/theme";
 import Sider from "../components/Sider";
 import Footer from "../components/Footer";
 import useLoadingPage from "../hooks/useLoadingPage";
+import { SWRConfig } from "swr";
 
 const MyApp = ({ Component, pageProps }: AppProps): React.ReactElement => {
   const currentRoute = useRouter().pathname;
   const [loadingPage] = useLoadingPage();
   return (
     <ThemeProvider theme={{ ...theme }}>
-      <Spin spinning={loadingPage} style={{ maxHeight: "100vh" }}>
-        {!currentRoute.includes("/admin") ? (
-          <Layout style={{ height: "100vh", overflow: "hidden" }}>
-            <Component {...pageProps} />
-          </Layout>
-        ) : (
-          <Layout style={{ height: "100vh" }}>
-            <Sider />
-            <Layout>
+      <SWRConfig
+        value={{
+          fetcher: (resource, init) => fetch(resource, init).then((res) => res.json()),
+          revalidateOnFocus: false,
+          refreshInterval: 60000,
+          dedupingInterval: 60000,
+        }}
+      >
+        <Spin spinning={loadingPage} style={{ maxHeight: "100vh" }}>
+          {!currentRoute.includes("/admin") ? (
+            <Layout style={{ height: "100vh", overflow: "hidden" }}>
               <Component {...pageProps} />
-              <Footer />
             </Layout>
-          </Layout>
-        )}
-      </Spin>
+          ) : (
+            <Layout style={{ height: "100vh" }}>
+              <Sider />
+              <Layout>
+                <Component {...pageProps} />
+                <Footer />
+              </Layout>
+            </Layout>
+          )}
+        </Spin>
+      </SWRConfig>
     </ThemeProvider>
   );
 };

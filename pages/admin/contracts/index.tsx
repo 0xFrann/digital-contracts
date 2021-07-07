@@ -1,9 +1,23 @@
 import React from "react";
 import DefaultHead from "../../../components/DefaultHead";
-import { Card, Popconfirm, Space, Table, Typography } from "antd";
+import {
+  Button,
+  Card,
+  Form,
+  Input,
+  Modal,
+  Popconfirm,
+  Select,
+  Space,
+  Table,
+  Typography,
+} from "antd";
 import { EyeOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import Content from "../../../components/Content";
 import { theme } from "../../../constants/theme";
+import Header from "../../../components/Header";
+import { useState } from "react";
+import { useContracts } from "../../services/contracts";
 
 const MOCKUP = [
   {
@@ -15,8 +29,12 @@ const MOCKUP = [
   },
 ];
 
+const { Title } = Typography;
+
 const ContractsListPage = (): React.ReactElement => {
-  const { Title } = Typography;
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [form] = Form.useForm();
+  const { contracts, newContract, deleteContract } = useContracts();
 
   const columns = [
     {
@@ -27,23 +45,19 @@ const ContractsListPage = (): React.ReactElement => {
     },
     {
       title: "Name",
-      dataIndex: "name",
-      key: "name",
       ellipsis: true,
+      render: (record) => `${record.firstName} ${record.lastName}`,
     },
     {
       title: "Identification",
-      dataIndex: "identification",
-      key: "identification",
+      dataIndex: "idNumber",
+      key: "idNumber",
     },
     {
       title: "Completed",
       dataIndex: "completed",
       key: "completed",
-      // eslint-disable-next-line react/display-name
-      render: ({ completed }: { completed: boolean }): JSX.Element => (
-        <span>{completed ? "yes" : "no"}</span>
-      ),
+      render: (record) => `${record ? "yes" : "no"}`,
     },
     {
       title: "Status",
@@ -60,7 +74,7 @@ const ContractsListPage = (): React.ReactElement => {
             onClick={() => viewGeneratedPDF(id)}
             style={{ fontSize: "20px", color: theme.default.primaryColor }}
           />
-          <a href={`/contracts/${id}`} target="_blank" rel="noreferrer">
+          <a href={`/contract/${id}`} target="_blank" rel="noreferrer">
             <EditOutlined style={{ fontSize: "20px", color: theme.default.primaryColor }} />
           </a>
           <Popconfirm
@@ -82,18 +96,87 @@ const ContractsListPage = (): React.ReactElement => {
   };
 
   const onDelete = (id: string): void => {
-    alert(`Delete ${id}`);
+    deleteContract(id);
+  };
+
+  const handleOnCloseForm = (): void => {
+    setIsFormOpen(false);
+    form.resetFields();
+  };
+
+  const triggerSubmitForm = (): void => {
+    form.submit();
+  };
+
+  const handleOnSubmitForm = (value): void => {
+    setIsFormOpen(false);
+    form.resetFields();
+    newContract({ ...value, status: "created", completed: false });
   };
 
   return (
     <>
       <DefaultHead />
       <Content>
-        <Title level={1}>Contracts</Title>
+        <Header
+          title="Contracts"
+          extra={
+            <Button type="primary" onClick={() => setIsFormOpen(true)}>
+              New Contract
+            </Button>
+          }
+        />
         <Card>
           <Title level={3}>Title</Title>
-          <Table columns={columns} dataSource={MOCKUP}></Table>
+          <Table
+            columns={columns}
+            dataSource={contracts.data}
+            loading={contracts.isValidating}
+          ></Table>
         </Card>
+        <Modal
+          visible={isFormOpen}
+          onOk={triggerSubmitForm}
+          onCancel={handleOnCloseForm}
+          okText="Create"
+          title="Create a contract"
+        >
+          <Form
+            form={form}
+            name="dynamic_form_nest_item"
+            autoComplete="off"
+            onFinish={handleOnSubmitForm}
+          >
+            <Form.Item
+              name="firstName"
+              label="First Name"
+              rules={[{ required: true, message: "Please, enter a name" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name="lastName"
+              label="Last Name"
+              rules={[{ required: true, message: "Please, enter the last name" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name="idNumber"
+              label="ID Number"
+              rules={[
+                {
+                  required: true,
+                  min: 8,
+                  max: 8,
+                  message: "Please, enter the identification number",
+                },
+              ]}
+            >
+              <Input type="number" />
+            </Form.Item>
+          </Form>
+        </Modal>
       </Content>
     </>
   );
