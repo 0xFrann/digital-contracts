@@ -17,7 +17,7 @@ import Content from "../../../components/Content";
 import { theme } from "../../../constants/theme";
 import Header from "../../../components/Header";
 import { useState } from "react";
-import { useContracts } from "../../services/contracts";
+import { useContracts } from "../../../services/contracts";
 
 const MOCKUP = [
   {

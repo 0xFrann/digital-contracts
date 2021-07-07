@@ -1,6 +1,6 @@
 import getConfig from "next/config";
 import useSWR, { mutate, SWRResponse } from "swr";
-import { TContract } from "../../types/Contracts";
+import { TContract } from "../types/Contracts";
 
 const { publicRuntimeConfig } = getConfig();
 const API_URL = publicRuntimeConfig.API_URL;

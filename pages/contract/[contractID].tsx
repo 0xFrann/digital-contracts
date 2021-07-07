@@ -3,7 +3,7 @@ import DefaultHead from "../../components/DefaultHead";
 import { Button, Card, Col, Form, Input, Row, Space, Typography } from "antd";
 import Content from "../../components/Content";
 import { useRouter } from "next/router";
-import { useContracts } from "../services/contracts";
+import { useContracts } from "../../services/contracts";
 import { TContract } from "../../types/Contracts";
 import { useState } from "react";
 
