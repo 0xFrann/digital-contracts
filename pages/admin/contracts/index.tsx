@@ -1,7 +1,18 @@
 import getConfig from "next/config";
 import React, { useState } from "react";
 import DefaultHead from "../../../components/DefaultHead";
-import { Button, Card, Form, Input, Modal, Popconfirm, Space, Table, Typography } from "antd";
+import {
+  Badge,
+  Button,
+  Card,
+  Form,
+  Input,
+  Modal,
+  Popconfirm,
+  Space,
+  Table,
+  Typography,
+} from "antd";
 import { EyeOutlined, DeleteOutlined, EditOutlined, CopyOutlined } from "@ant-design/icons";
 import Content from "../../../components/Content";
 import { theme } from "../../../constants/theme";
@@ -41,7 +52,19 @@ const ContractsListPage = (): React.ReactElement => {
       title: "Completed",
       dataIndex: "completed",
       key: "completed",
-      render: (record: boolean) => `${record ? "yes" : "no"}`,
+      // eslint-disable-next-line react/display-name
+      render: (record: boolean) =>
+        record ? (
+          <>
+            <Badge color="green" />
+            <span>Yes</span>
+          </>
+        ) : (
+          <>
+            <Badge color="red" />
+            <span>No</span>
+          </>
+        ),
     },
     {
       title: "Status",
