@@ -7,6 +7,8 @@ import Content from "../../../components/Content";
 import { theme } from "../../../constants/theme";
 import Header from "../../../components/Header";
 import { useContracts } from "../../../services/contracts";
+import ContractStatus from "../../../components/ContractStatus";
+import { TContractStatus } from "../../../types/Contracts";
 
 const { publicRuntimeConfig } = getConfig();
 const DOMAIN_URL = publicRuntimeConfig.DOMAIN_URL;
@@ -39,12 +41,14 @@ const ContractsListPage = (): React.ReactElement => {
       title: "Completed",
       dataIndex: "completed",
       key: "completed",
-      render: (record) => `${record ? "yes" : "no"}`,
+      render: (record: boolean) => `${record ? "yes" : "no"}`,
     },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
+      // eslint-disable-next-line react/display-name
+      render: (record: TContractStatus) => <ContractStatus status={record} />,
     },
     {
       title: "Actions",
