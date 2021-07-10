@@ -1,33 +1,15 @@
-import React from "react";
+import getConfig from "next/config";
+import React, { useState } from "react";
 import DefaultHead from "../../../components/DefaultHead";
-import {
-  Button,
-  Card,
-  Form,
-  Input,
-  Modal,
-  Popconfirm,
-  Select,
-  Space,
-  Table,
-  Typography,
-} from "antd";
-import { EyeOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { Button, Card, Form, Input, Modal, Popconfirm, Space, Table, Typography } from "antd";
+import { EyeOutlined, DeleteOutlined, EditOutlined, CopyOutlined } from "@ant-design/icons";
 import Content from "../../../components/Content";
 import { theme } from "../../../constants/theme";
 import Header from "../../../components/Header";
-import { useState } from "react";
 import { useContracts } from "../../../services/contracts";
 
-const MOCKUP = [
-  {
-    name: "Gus-Gus",
-    identification: "12341234",
-    completed: false,
-    status: "sended",
-    id: "123",
-  },
-];
+const { publicRuntimeConfig } = getConfig();
+const DOMAIN_URL = publicRuntimeConfig.DOMAIN_URL;
 
 const { Title } = Typography;
 
@@ -70,6 +52,10 @@ const ContractsListPage = (): React.ReactElement => {
       // eslint-disable-next-line react/display-name
       render: ({ id }: { id: string }): JSX.Element => (
         <Space size="middle">
+          <CopyOutlined
+            onClick={() => copyLink(id)}
+            style={{ fontSize: "20px", color: theme.default.primaryColor }}
+          />
           <EyeOutlined
             onClick={() => viewGeneratedPDF(id)}
             style={{ fontSize: "20px", color: theme.default.primaryColor }}
@@ -90,6 +76,12 @@ const ContractsListPage = (): React.ReactElement => {
       width: "150px",
     },
   ];
+
+  const copyLink = (id: string): void => {
+    navigator.clipboard.writeText(`${DOMAIN_URL}/contract/${id}`).then(() => {
+      alert(navigator.clipboard.readText());
+    });
+  };
 
   const viewGeneratedPDF = (id: string): void => {
     alert(`View PDF of ${id}`);

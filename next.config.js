@@ -39,5 +39,6 @@ module.exports = withCSS({
   ),
   publicRuntimeConfig: {
     API_URL: process.env.API_URL,
+    DOMAIN_URL: process.env.DOMAIN_URL,
   }
 });
