@@ -26,7 +26,7 @@ export default async (
       if (!doc.exists) {
         res.status(404).json({ message: "Contract doesn't exists" });
       } else {
-        res.status(200).json({ id: doc.id, ...doc.data() } as TContract & { id: string });
+        res.status(200).json({ id: doc.id, ...doc.data() } as TContract);
       }
     } else if (req.method === "DELETE") {
       await db

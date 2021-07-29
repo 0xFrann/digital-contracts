@@ -9,8 +9,8 @@ const StatusAndColor: { [status in TContractStatus]: PresetStatusColorType } = {
   canceled: "error",
 };
 
-const ContractStatus = ({ status }: { status: TContractStatus }): React.ReactElement => {
-  return <Tag color={StatusAndColor[status]}>{status[0].toUpperCase(0) + status.slice(1)}</Tag>;
+const ContractStatusPill = ({ status }: { status: TContractStatus }): React.ReactElement => {
+  return <Tag color={StatusAndColor[status]}>{status[0].toUpperCase() + status.slice(1)}</Tag>;
 };
 
-export default ContractStatus;
+export default ContractStatusPill;

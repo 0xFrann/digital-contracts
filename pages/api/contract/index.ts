@@ -19,7 +19,11 @@ export default async (
       const doc = await db.collection("contracts").add({
         ...newContract,
       });
-      console.log(doc.id);
+      await doc.update({
+        id: doc.id,
+        updated: new Date().toISOString(),
+      });
+
       res.status(200).json({ id: doc.id });
     }
   } catch (e) {

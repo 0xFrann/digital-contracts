@@ -8,9 +8,8 @@ export default async (req: NextApiRequest, res: NextApiResponse<TContract[]>): P
     const contractsData = contracts.docs.map(
       (doc) =>
         ({
-          id: doc.id,
           ...doc.data(),
-        } as TContract & { id: string })
+        } as TContract)
     );
     res.status(200).json([...contractsData]);
   } catch (e) {

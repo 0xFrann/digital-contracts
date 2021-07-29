@@ -18,7 +18,7 @@ import Content from "../../../components/Content";
 import { theme } from "../../../constants/theme";
 import Header from "../../../components/Header";
 import { useContracts } from "../../../services/contracts";
-import ContractStatus from "../../../components/ContractStatus";
+import ContractStatusPill from "../../../components/ContractStatusPill";
 import { TContractStatus } from "../../../types/Contracts";
 
 const { publicRuntimeConfig } = getConfig();
@@ -49,29 +49,11 @@ const ContractsListPage = (): React.ReactElement => {
       key: "idNumber",
     },
     {
-      title: "Completed",
-      dataIndex: "completed",
-      key: "completed",
-      // eslint-disable-next-line react/display-name
-      render: (record: boolean) =>
-        record ? (
-          <>
-            <Badge color="green" />
-            <span>Yes</span>
-          </>
-        ) : (
-          <>
-            <Badge color="red" />
-            <span>No</span>
-          </>
-        ),
-    },
-    {
       title: "Status",
       dataIndex: "status",
       key: "status",
       // eslint-disable-next-line react/display-name
-      render: (record: TContractStatus) => <ContractStatus status={record} />,
+      render: (record: TContractStatus) => <ContractStatusPill status={record} />,
     },
     {
       title: "Actions",
@@ -135,7 +117,7 @@ const ContractsListPage = (): React.ReactElement => {
 
   return (
     <>
-      <DefaultHead />
+      <DefaultHead title="Admin" />
       <Content>
         <Header
           title="Contracts"

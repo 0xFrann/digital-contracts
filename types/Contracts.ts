@@ -1,9 +1,23 @@
-export type TContractStatus = "created" | "signed" | "approved" | "canceled";
+export enum EContractStatus {
+  created = "created",
+  signed = "signed",
+  approved = "approved",
+  canceled = "canceled",
+}
+
+export type TContractStatus =
+  | EContractStatus.created
+  | EContractStatus.signed
+  | EContractStatus.approved
+  | EContractStatus.canceled;
 
 export type TContract = {
+  id: string;
   firstName: string;
   lastName: string;
   idNumber: number;
-  completed: false;
+  idDocPhotos: boolean;
+  signImage: boolean;
   status: TContractStatus;
+  updated: string;
 };

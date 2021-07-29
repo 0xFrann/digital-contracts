@@ -8,7 +8,7 @@ const AdminPage = (): React.ReactElement => {
 
   return (
     <>
-      <DefaultHead />
+      <DefaultHead title="Admin" />
       <Content>
         <Title level={1}>Admin</Title>
       </Content>

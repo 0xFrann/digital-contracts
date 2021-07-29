@@ -19,7 +19,7 @@ const getContract = (id: string): SWRResponse<TContract, Error> => {
   return response;
 };
 
-const updateContract = async (contract: TContract & { id: string }) => {
+const updateContract = async (contract: TContract) => {
   const response = await fetch(`${API_URL}/contract/${contract.id}`, {
     method: "PUT",
     body: JSON.stringify(contract),
@@ -34,7 +34,7 @@ const updateContract = async (contract: TContract & { id: string }) => {
   return response;
 };
 
-const newContract = async (contract: TContract & { id: string }) => {
+const newContract = async (contract: TContract) => {
   const response = await fetch(`${API_URL}/contract`, {
     method: "POST",
     body: JSON.stringify(contract),

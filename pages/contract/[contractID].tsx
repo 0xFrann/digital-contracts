@@ -1,11 +1,20 @@
-import React, { useEffect } from "react";
+import React from "react";
 import DefaultHead from "../../components/DefaultHead";
-import { Button, Card, Col, Form, Input, Row, Space, Typography } from "antd";
+import { Button, Card, Checkbox, Col, Form, Input, Popconfirm, Row, Space, Typography } from "antd";
 import Content from "../../components/Content";
 import { useRouter } from "next/router";
 import { useContracts } from "../../services/contracts";
-import { TContract } from "../../types/Contracts";
+import { EContractStatus, TContract } from "../../types/Contracts";
 import { useState } from "react";
+import ContractStatusPill from "../../components/ContractStatusPill";
+import { useEffect } from "react";
+
+type TEditContractForm = {
+  firstName: string;
+  lastName: string;
+  idDocPhotos: boolean;
+  signImage: boolean;
+};
 
 const ContractForm = (): React.ReactElement => {
   const { Title, Text } = Typography;
@@ -15,15 +24,48 @@ const ContractForm = (): React.ReactElement => {
   const { data: contract, isValidating } = getContract(contractID as string);
   const [form] = Form.useForm();
   const [isUpdateButtonDisabled, setUpdateButtonDisabled] = useState(true);
+  const [isCanceledOrApproved, setIsCanceledOrApproved] = useState(
+    contract?.status === EContractStatus.canceled || contract?.status === EContractStatus.approved
+  );
 
-  const handleOnSubmitForm = (updatedContract: Pick<TContract, "firstName" | "lastName">) => {
-    const completedValidation = false; // TODO validate completed form
+  useEffect(() => {
+    setIsCanceledOrApproved(
+      contract?.status === EContractStatus.canceled || contract?.status === EContractStatus.approved
+    );
+  }, [contract?.status]);
+
+  const handleOnSubmitForm = (updatedContract: TEditContractForm): void => {
+    const setStatus = (isSigned, oldStatus): EContractStatus[keyof EContractStatus] => {
+      if (isSigned) {
+        return EContractStatus.signed;
+      } else if (oldStatus === EContractStatus.signed) {
+        return EContractStatus.created;
+      } else {
+        return oldStatus;
+      }
+    };
 
     updateContract({
       ...contract,
-      completed: completedValidation,
+      status: setStatus(updatedContract?.signImage, contract.status),
       ...updatedContract,
-    } as TContract & { id: string });
+    } as TContract);
+
+    setUpdateButtonDisabled(true);
+  };
+
+  const approveContract = (): void => {
+    updateContract({
+      ...contract,
+      status: EContractStatus.approved,
+    } as TContract);
+  };
+
+  const cancelContract = (): void => {
+    updateContract({
+      ...contract,
+      status: EContractStatus.canceled,
+    } as TContract);
   };
 
   return (
@@ -33,43 +75,101 @@ const ContractForm = (): React.ReactElement => {
         <Content>
           <Row justify="center">
             <Col md={16}>
-              <Title level={1}>{`Contract to sign ${contractID}`}</Title>
-              <Card>
-                <Space direction="vertical" size="large" style={{ width: "100%" }}>
-                  <div>
-                    <Title level={3}>{`${contract?.firstName} ${contract?.lastName}`}</Title>
-                    <Text>DNI: {contract?.idNumber}</Text>
-                  </div>
-                  <Form
-                    form={form}
-                    initialValues={{ firstName: contract?.firstName, lastName: contract?.lastName }}
-                    name="dynamic_form_nest_item"
-                    autoComplete="off"
-                    onFinish={handleOnSubmitForm}
-                    onValuesChange={() => setUpdateButtonDisabled(false)}
-                  >
-                    <Form.Item
-                      name="firstName"
-                      label="First Name"
-                      rules={[{ required: true, message: "Please, enter a name" }]}
-                    >
-                      <Input />
-                    </Form.Item>
-                    <Form.Item
-                      name="lastName"
-                      label="Last Name"
-                      rules={[{ required: true, message: "Please, enter the last name" }]}
-                    >
-                      <Input />
-                    </Form.Item>
-                    <Form.Item>
-                      <Button type="primary" htmlType="submit" disabled={isUpdateButtonDisabled}>
-                        Update contract
+              <Space size="large" direction="vertical" style={{ width: "100%" }}>
+                <Row>
+                  <Col sm={16}>
+                    <Title level={1}>{`Contract to sign ${contractID}`}</Title>
+                    <Space>
+                      {contract?.status && <ContractStatusPill status={contract?.status} />}
+                      {contract?.updated && (
+                        <Text type="secondary">{`Updated at: ${Intl.DateTimeFormat("es-AR", {
+                          dateStyle: "long",
+                          timeStyle: "short",
+                        }).format(new Date(contract?.updated))}`}</Text>
+                      )}
+                    </Space>
+                  </Col>
+                  <Col sm={8}>
+                    <Space direction="vertical" align="end" style={{ width: "100%" }}>
+                      <Button
+                        type="primary"
+                        disabled={
+                          contract?.status !== EContractStatus.signed || isCanceledOrApproved
+                        }
+                        onClick={approveContract}
+                      >
+                        Approve contract
                       </Button>
-                    </Form.Item>
-                  </Form>
-                </Space>
-              </Card>
+                      <Popconfirm
+                        title="Are you sure?"
+                        onConfirm={cancelContract}
+                        okText="Yes, Cancel"
+                        cancelText="No"
+                        disabled={isCanceledOrApproved}
+                      >
+                        <Button danger disabled={isCanceledOrApproved}>
+                          Cancel contract
+                        </Button>
+                      </Popconfirm>
+                    </Space>
+                  </Col>
+                </Row>
+                <Card>
+                  <Space direction="vertical" size="large" style={{ width: "100%" }}>
+                    <div>
+                      <Title level={3}>{`${contract?.firstName} ${contract?.lastName}`}</Title>
+                      <Text>DNI: {contract?.idNumber}</Text>
+                    </div>
+                    <Form
+                      form={form}
+                      initialValues={{
+                        firstName: contract?.firstName,
+                        lastName: contract?.lastName,
+                        idDocPhotos: contract?.idDocPhotos,
+                        signImage: contract?.signImage,
+                      }}
+                      name="dynamic_form_nest_item"
+                      autoComplete="off"
+                      onFinish={handleOnSubmitForm}
+                      onValuesChange={() => setUpdateButtonDisabled(false)}
+                    >
+                      <Form.Item
+                        name="firstName"
+                        label="First Name"
+                        rules={[{ required: true, message: "Please, enter a name" }]}
+                      >
+                        <Input disabled={isCanceledOrApproved} />
+                      </Form.Item>
+                      <Form.Item
+                        name="lastName"
+                        label="Last Name"
+                        rules={[{ required: true, message: "Please, enter the last name" }]}
+                      >
+                        <Input disabled={isCanceledOrApproved} />
+                      </Form.Item>
+                      <Form.Item
+                        name="idDocPhotos"
+                        label="Upload ID photos"
+                        valuePropName="checked"
+                      >
+                        <Checkbox disabled={isCanceledOrApproved} />
+                      </Form.Item>
+                      <Form.Item name="signImage" label="Sign contract" valuePropName="checked">
+                        <Checkbox disabled={isCanceledOrApproved} />
+                      </Form.Item>
+                      <Form.Item>
+                        <Button
+                          type="primary"
+                          htmlType="submit"
+                          disabled={isUpdateButtonDisabled || isCanceledOrApproved}
+                        >
+                          Update contract
+                        </Button>
+                      </Form.Item>
+                    </Form>
+                  </Space>
+                </Card>
+              </Space>
             </Col>
           </Row>
         </Content>
