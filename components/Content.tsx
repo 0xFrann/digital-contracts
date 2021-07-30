@@ -6,6 +6,7 @@ const ANTDContent = Layout.Content;
 const StyledContent = styled(ANTDContent)`
   padding: ${({ theme }) => theme.spaces[8] * 2}rem;
   height: 100%;
+  overflow-y: auto;
 `;
 
 interface IContentProps {

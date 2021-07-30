@@ -17,7 +17,7 @@ export type TContract = {
   lastName: string;
   idNumber: number;
   idDocPhotos: boolean;
-  signImage: boolean;
+  signImage: string;
   status: TContractStatus;
   updated: string;
 };

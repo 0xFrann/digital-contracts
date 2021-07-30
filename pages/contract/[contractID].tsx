@@ -1,19 +1,18 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import DefaultHead from "../../components/DefaultHead";
 import { Button, Card, Checkbox, Col, Form, Input, Popconfirm, Row, Space, Typography } from "antd";
 import Content from "../../components/Content";
 import { useRouter } from "next/router";
 import { useContracts } from "../../services/contracts";
 import { EContractStatus, TContract } from "../../types/Contracts";
-import { useState } from "react";
 import ContractStatusPill from "../../components/ContractStatusPill";
-import { useEffect } from "react";
+import SignaturePadCard from "../../components/SignaturePadCard";
 
 type TEditContractForm = {
   firstName: string;
   lastName: string;
   idDocPhotos: boolean;
-  signImage: boolean;
+  signImage: string;
 };
 
 const ContractForm = (): React.ReactElement => {
@@ -27,6 +26,16 @@ const ContractForm = (): React.ReactElement => {
   const [isCanceledOrApproved, setIsCanceledOrApproved] = useState(
     contract?.status === EContractStatus.canceled || contract?.status === EContractStatus.approved
   );
+
+  const handleOnSign = (base64Image): void => {
+    form.setFieldsValue({ signImage: base64Image });
+    setUpdateButtonDisabled(false);
+  };
+
+  const handleOnClear = (): void => {
+    form.setFieldsValue({ signImage: null });
+    setUpdateButtonDisabled(false);
+  };
 
   useEffect(() => {
     setIsCanceledOrApproved(
@@ -47,8 +56,8 @@ const ContractForm = (): React.ReactElement => {
 
     updateContract({
       ...contract,
-      status: setStatus(updatedContract?.signImage, contract.status),
       ...updatedContract,
+      status: setStatus(updatedContract?.signImage, contract.status),
     } as TContract);
 
     setUpdateButtonDisabled(true);
@@ -154,8 +163,16 @@ const ContractForm = (): React.ReactElement => {
                       >
                         <Checkbox disabled={isCanceledOrApproved} />
                       </Form.Item>
-                      <Form.Item name="signImage" label="Sign contract" valuePropName="checked">
-                        <Checkbox disabled={isCanceledOrApproved} />
+                      <Form.Item name="signImage" hidden>
+                        <Input disabled={isCanceledOrApproved} />
+                      </Form.Item>
+                      <Form.Item>
+                        <SignaturePadCard
+                          onClear={handleOnClear}
+                          onDraw={handleOnSign}
+                          disabled={isCanceledOrApproved}
+                          defaultData={contract?.signImage}
+                        />
                       </Form.Item>
                       <Form.Item>
                         <Button
