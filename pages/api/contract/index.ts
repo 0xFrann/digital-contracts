@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { TContract } from "../../../types/Contracts";
-import db from "../../../utils/db";
+import FirebaseAdmin from "../../../services/firebaseAdminService";
 
 export default async (
   req: NextApiRequest,
@@ -8,7 +8,7 @@ export default async (
 ): Promise<void> => {
   try {
     const newContract = JSON.parse(req.body);
-    const contracts = await db.collection("contracts").get();
+    const contracts = await FirebaseAdmin.firestore().collection("contracts").get();
     const contractsData = contracts.docs.map((contracts) => contracts.data()) as TContract[];
 
     if (contractsData.some((contract) => contract.idNumber === newContract.idNumber)) {
@@ -16,9 +16,11 @@ export default async (
         message: "Contract already exists",
       });
     } else {
-      const doc = await db.collection("contracts").add({
-        ...newContract,
-      });
+      const doc = await FirebaseAdmin.firestore()
+        .collection("contracts")
+        .add({
+          ...newContract,
+        });
       await doc.update({
         id: doc.id,
         updated: new Date().toISOString(),

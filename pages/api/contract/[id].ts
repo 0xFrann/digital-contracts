@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { TContract } from "../../../types/Contracts";
-import db from "../../../utils/db";
+import FirebaseAdmin from "../../../services/firebaseAdminService";
 
 export default async (
   req: NextApiRequest,
@@ -10,7 +10,7 @@ export default async (
 
   try {
     if (req.method === "PUT") {
-      await db
+      await FirebaseAdmin.firestore()
         .collection("contracts")
         .doc(id as string)
         .update({
@@ -19,7 +19,7 @@ export default async (
         });
       res.status(200).json({ message: "Contract modified" });
     } else if (req.method === "GET") {
-      const doc = await db
+      const doc = await FirebaseAdmin.firestore()
         .collection("contracts")
         .doc(id as string)
         .get();
@@ -29,7 +29,7 @@ export default async (
         res.status(200).json({ id: doc.id, ...doc.data() } as TContract);
       }
     } else if (req.method === "DELETE") {
-      await db
+      await FirebaseAdmin.firestore()
         .collection("contracts")
         .doc(id as string)
         .delete();

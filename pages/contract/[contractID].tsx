@@ -1,17 +1,21 @@
 import React, { useEffect, useState } from "react";
 import DefaultHead from "../../components/DefaultHead";
-import { Button, Card, Checkbox, Col, Form, Input, Popconfirm, Row, Space, Typography } from "antd";
+import { Button, Card, Col, Form, Input, Popconfirm, Row, Space, Typography, Upload } from "antd";
 import Content from "../../components/Content";
 import { useRouter } from "next/router";
 import { useContracts } from "../../services/contracts";
 import { EContractStatus, TContract } from "../../types/Contracts";
 import ContractStatusPill from "../../components/ContractStatusPill";
 import SignaturePadCard from "../../components/SignaturePadCard";
+import { UploadOutlined } from "@ant-design/icons";
+import { UploadFile } from "antd/lib/upload/interface";
+import Firebase from "../../services/firebaseService";
 
 type TEditContractForm = {
   firstName: string;
   lastName: string;
-  idDocPhotos: boolean;
+  idDocPhotosFront: UploadFile[];
+  idDocPhotosBack: UploadFile[];
   signImage: string;
 };
 
@@ -22,6 +26,18 @@ const ContractForm = (): React.ReactElement => {
   const { getContract, updateContract } = useContracts();
   const { data: contract, isValidating } = getContract(contractID as string);
   const [form] = Form.useForm();
+  const [idDocPhotosFront, setIdDocPhotosFront] = useState(
+    contract?.idDocPhotos.front || {
+      fileName: "",
+      fileLocation: "",
+    }
+  );
+  const [idDocPhotosBack, setIdDocPhotosBack] = useState(
+    contract?.idDocPhotos.back || {
+      fileName: "",
+      fileLocation: "",
+    }
+  );
   const [isUpdateButtonDisabled, setUpdateButtonDisabled] = useState(true);
   const [isCanceledOrApproved, setIsCanceledOrApproved] = useState(
     contract?.status === EContractStatus.canceled || contract?.status === EContractStatus.approved
@@ -43,7 +59,14 @@ const ContractForm = (): React.ReactElement => {
     );
   }, [contract?.status]);
 
-  const handleOnSubmitForm = (updatedContract: TEditContractForm): void => {
+  const handleOnSubmitForm = async (updatedContract: TEditContractForm): void => {
+    const {
+      idDocPhotosBack: b,
+      idDocPhotosFront: f,
+      signImage,
+      ...restUpdatedContract
+    } = updatedContract;
+
     const setStatus = (isSigned, oldStatus): EContractStatus[keyof EContractStatus] => {
       if (isSigned) {
         return EContractStatus.signed;
@@ -56,8 +79,10 @@ const ContractForm = (): React.ReactElement => {
 
     updateContract({
       ...contract,
-      ...updatedContract,
-      status: setStatus(updatedContract?.signImage, contract.status),
+      ...restUpdatedContract,
+      status: setStatus(signImage, contract.status),
+      signImage,
+      idDocPhotos: { front: idDocPhotosFront, back: idDocPhotosBack },
     } as TContract);
 
     setUpdateButtonDisabled(true);
@@ -75,6 +100,48 @@ const ContractForm = (): React.ReactElement => {
       ...contract,
       status: EContractStatus.canceled,
     } as TContract);
+  };
+
+  const uploadFile = (
+    { file, filename, onError, onProgress, onSuccess },
+    updateState,
+    customFileName
+  ) => {
+    const ref = Firebase.storage(Firebase.app())
+      .ref(`/contracts/${contractID}`)
+      .child(customFileName);
+
+    const task = ref.put(file as Blob);
+    task.on(
+      Firebase.storage.TaskEvent.STATE_CHANGED,
+      (snapshot) => {
+        const progress = Math.round((100 * snapshot.bytesTransferred) / snapshot.totalBytes);
+        onProgress({
+          percent: progress,
+        } as never);
+      },
+      onError,
+      () => {
+        task.snapshot.ref.getDownloadURL().then((downloadURL) => {
+          onSuccess(downloadURL, file as never);
+          updateState({
+            fileName: customFileName,
+            fileLocation: downloadURL,
+          });
+        });
+      }
+    );
+  };
+
+  const removeFile = (filename, updateState) => {
+    const ref = Firebase.storage(Firebase.app()).ref(`/contracts/${contractID}`).child(filename);
+
+    ref.delete().then(() =>
+      updateState({
+        fileName: "",
+        fileLocation: "",
+      })
+    );
   };
 
   return (
@@ -134,13 +201,29 @@ const ContractForm = (): React.ReactElement => {
                       initialValues={{
                         firstName: contract?.firstName,
                         lastName: contract?.lastName,
-                        idDocPhotos: contract?.idDocPhotos,
+                        idDocPhotosFront: contract?.idDocPhotos.front.fileLocation
+                          ? [
+                              {
+                                name: contract?.idDocPhotos.front.fileName,
+                                url: contract?.idDocPhotos.front.fileLocation,
+                              },
+                            ]
+                          : [],
+                        idDocPhotosBack: contract?.idDocPhotos.back.fileLocation
+                          ? [
+                              {
+                                name: contract?.idDocPhotos.back.fileName,
+                                url: contract?.idDocPhotos.back.fileLocation,
+                              },
+                            ]
+                          : [],
                         signImage: contract?.signImage,
                       }}
                       name="dynamic_form_nest_item"
                       autoComplete="off"
                       onFinish={handleOnSubmitForm}
                       onValuesChange={() => setUpdateButtonDisabled(false)}
+                      layout="vertical"
                     >
                       <Form.Item
                         name="firstName"
@@ -157,11 +240,50 @@ const ContractForm = (): React.ReactElement => {
                         <Input disabled={isCanceledOrApproved} />
                       </Form.Item>
                       <Form.Item
-                        name="idDocPhotos"
-                        label="Upload ID photos"
-                        valuePropName="checked"
+                        name="idDocPhotosFront"
+                        label="Upload ID Photo front side"
+                        valuePropName="fileList"
+                        getValueFromEvent={(e) => e.fileList}
                       >
-                        <Checkbox disabled={isCanceledOrApproved} />
+                        <Upload
+                          name="front"
+                          listType="picture"
+                          maxCount={1}
+                          multiple={false}
+                          accept="image/*"
+                          disabled={isCanceledOrApproved}
+                          customRequest={(file) =>
+                            uploadFile(file, setIdDocPhotosFront, "ID Photo Front")
+                          }
+                          onRemove={() => removeFile("ID Photo Front", setIdDocPhotosFront)}
+                        >
+                          <Button icon={<UploadOutlined />} disabled={isCanceledOrApproved}>
+                            Click to upload
+                          </Button>
+                        </Upload>
+                      </Form.Item>
+                      <Form.Item
+                        name="idDocPhotosBack"
+                        label="Upload ID Photo back side"
+                        valuePropName="fileList"
+                        getValueFromEvent={(e) => e.fileList}
+                      >
+                        <Upload
+                          name="back"
+                          listType="picture"
+                          maxCount={1}
+                          multiple={false}
+                          accept="image/*"
+                          disabled={isCanceledOrApproved}
+                          customRequest={(file) =>
+                            uploadFile(file, setIdDocPhotosBack, "ID Photo Back")
+                          }
+                          onRemove={() => removeFile("ID Photo Back", setIdDocPhotosBack)}
+                        >
+                          <Button icon={<UploadOutlined />} disabled={isCanceledOrApproved}>
+                            Click to upload
+                          </Button>
+                        </Upload>
                       </Form.Item>
                       <Form.Item name="signImage" hidden>
                         <Input disabled={isCanceledOrApproved} />

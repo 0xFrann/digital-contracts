@@ -1,5 +1,8 @@
 import admin from "firebase-admin";
-import { FIREBASE_SERVICE_ACCOUNT } from "../../consts";
+import getConfig from "next/config";
+
+const { serverRuntimeConfig } = getConfig();
+const FIREBASE_SERVICE_ACCOUNT = JSON.parse(serverRuntimeConfig.FIREBASE_SERVICE_ACCOUNT);
 
 if (!admin.apps.length) {
   try {
@@ -11,4 +14,5 @@ if (!admin.apps.length) {
     console.log("Firebase admin initialization error", error.stack);
   }
 }
-export default admin.firestore();
+
+export default admin;

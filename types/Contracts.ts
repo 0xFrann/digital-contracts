@@ -11,12 +11,17 @@ export type TContractStatus =
   | EContractStatus.approved
   | EContractStatus.canceled;
 
+type TFile = {
+  fileName: string;
+  fileLocation: string;
+};
+
 export type TContract = {
   id: string;
   firstName: string;
   lastName: string;
   idNumber: number;
-  idDocPhotos: boolean;
+  idDocPhotos: { front: TFile; back: TFile };
   signImage: string;
   status: TContractStatus;
   updated: string;

@@ -85,7 +85,7 @@ const SignaturePadCard = (props: Omit<ISignaturePadCard, "ref">): React.ReactEle
       <StyledFloatinButton
         type="primary"
         shape="circle"
-        disabled={isSignPadEmpty}
+        disabled={props?.disabled || isSignPadEmpty}
         icon={<ClearOutlined />}
         onClick={handleOnClear}
       />

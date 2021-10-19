@@ -88,7 +88,7 @@ const ContractsListPage = (): React.ReactElement => {
 
   const copyLink = (id: string): void => {
     navigator.clipboard.writeText(`${DOMAIN_URL}/contract/${id}`).then(() => {
-      alert(navigator.clipboard.readText());
+      navigator.clipboard.readText().then((res) => alert(`Link copied: ${res}`));
     });
   };
 
@@ -112,7 +112,12 @@ const ContractsListPage = (): React.ReactElement => {
   const handleOnSubmitForm = (value): void => {
     setIsFormOpen(false);
     form.resetFields();
-    newContract({ ...value, status: "created", completed: false });
+    newContract({
+      ...value,
+      status: "created",
+      idDocPhotos: { front: "", back: "" },
+      signImage: "",
+    });
   };
 
   return (
