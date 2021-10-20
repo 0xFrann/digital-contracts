@@ -1,18 +1,8 @@
 import getConfig from "next/config";
+import { useRouter } from "next/router";
 import React, { useState } from "react";
 import DefaultHead from "../../../components/DefaultHead";
-import {
-  Badge,
-  Button,
-  Card,
-  Form,
-  Input,
-  Modal,
-  Popconfirm,
-  Space,
-  Table,
-  Typography,
-} from "antd";
+import { Button, Card, Form, Input, Modal, Popconfirm, Space, Table, Typography } from "antd";
 import { EyeOutlined, DeleteOutlined, EditOutlined, CopyOutlined } from "@ant-design/icons";
 import Content from "../../../components/Content";
 import { theme } from "../../../constants/theme";
@@ -20,6 +10,7 @@ import Header from "../../../components/Header";
 import { useContracts } from "../../../services/contracts";
 import ContractStatusPill from "../../../components/ContractStatusPill";
 import { TContractStatus } from "../../../types/Contracts";
+import Link from "next/link";
 
 const { publicRuntimeConfig } = getConfig();
 const DOMAIN_URL = publicRuntimeConfig.DOMAIN_URL;
@@ -30,6 +21,7 @@ const ContractsListPage = (): React.ReactElement => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [form] = Form.useForm();
   const { contracts, newContract, deleteContract } = useContracts();
+  const router = useRouter();
 
   const columns = [
     {
@@ -65,10 +57,9 @@ const ContractsListPage = (): React.ReactElement => {
             onClick={() => copyLink(id)}
             style={{ fontSize: "20px", color: theme.default.primaryColor }}
           />
-          <EyeOutlined
-            onClick={() => viewGeneratedPDF(id)}
-            style={{ fontSize: "20px", color: theme.default.primaryColor }}
-          />
+          <a href={`${DOMAIN_URL}/contract/pdf/${id}`} target="_blank" rel="noreferrer">
+            <EyeOutlined style={{ fontSize: "20px", color: theme.default.primaryColor }} />
+          </a>
           <a href={`/contract/${id}`} target="_blank" rel="noreferrer">
             <EditOutlined style={{ fontSize: "20px", color: theme.default.primaryColor }} />
           </a>
@@ -90,10 +81,6 @@ const ContractsListPage = (): React.ReactElement => {
     navigator.clipboard.writeText(`${DOMAIN_URL}/contract/${id}`).then(() => {
       navigator.clipboard.readText().then((res) => alert(`Link copied: ${res}`));
     });
-  };
-
-  const viewGeneratedPDF = (id: string): void => {
-    alert(`View PDF of ${id}`);
   };
 
   const onDelete = (id: string): void => {
