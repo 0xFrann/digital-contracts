@@ -24,22 +24,36 @@ const MyApp = ({ Component, pageProps }: AppProps): React.ReactElement => {
         }}
       >
         <Spin spinning={loadingPage} style={{ maxHeight: "100vh" }}>
-          {!currentRoute.includes("/admin") ? (
-            <Layout style={{ height: "100vh", overflow: "hidden" }}>
-              <Component {...pageProps} />
-            </Layout>
-          ) : (
-            <Layout style={{ height: "100vh" }}>
-              <Sider />
-              <Layout>
-                <Component {...pageProps} />
-                <Footer />
-              </Layout>
-            </Layout>
-          )}
+          {LayoutSwitch(Component, pageProps, currentRoute)}
         </Spin>
       </SWRConfig>
     </ThemeProvider>
+  );
+};
+
+const LayoutSwitch = (Component, pageProps, currentRoute) => {
+  if (currentRoute.includes("/admin")) {
+    return (
+      <Layout style={{ height: "100vh" }}>
+        <Sider />
+        <Layout>
+          <Component {...pageProps} />
+          <Footer />
+        </Layout>
+      </Layout>
+    );
+  }
+  if (currentRoute.includes("/pdf")) {
+    return (
+      <div>
+        <Component {...pageProps} />
+      </div>
+    );
+  }
+  return (
+    <Layout style={{ height: "100vh", overflow: "hidden" }}>
+      <Component {...pageProps} />
+    </Layout>
   );
 };
 

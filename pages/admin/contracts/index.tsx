@@ -1,5 +1,4 @@
 import getConfig from "next/config";
-import { useRouter } from "next/router";
 import React, { useState } from "react";
 import DefaultHead from "../../../components/DefaultHead";
 import { Button, Card, Form, Input, Modal, Popconfirm, Space, Table, Typography } from "antd";
@@ -10,7 +9,6 @@ import Header from "../../../components/Header";
 import { useContracts } from "../../../services/contracts";
 import ContractStatusPill from "../../../components/ContractStatusPill";
 import { TContractStatus } from "../../../types/Contracts";
-import Link from "next/link";
 
 const { publicRuntimeConfig } = getConfig();
 const DOMAIN_URL = publicRuntimeConfig.DOMAIN_URL;
@@ -21,7 +19,6 @@ const ContractsListPage = (): React.ReactElement => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [form] = Form.useForm();
   const { contracts, newContract, deleteContract } = useContracts();
-  const router = useRouter();
 
   const columns = [
     {

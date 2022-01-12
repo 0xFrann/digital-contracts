@@ -102,6 +102,10 @@ const ContractForm = (): React.ReactElement => {
     } as TContract);
   };
 
+  const previewPDFContract = (): void => {
+    router.push("/contract/pdf/[contractID]", `/contract/pdf/${contractID}`);
+  };
+
   const uploadFile = (
     { file, filename, onError, onProgress, onSuccess },
     updateState,
@@ -167,26 +171,45 @@ const ContractForm = (): React.ReactElement => {
                   </Col>
                   <Col sm={8}>
                     <Space direction="vertical" align="end" style={{ width: "100%" }}>
-                      <Button
-                        type="primary"
-                        disabled={
-                          contract?.status !== EContractStatus.signed || isCanceledOrApproved
-                        }
-                        onClick={approveContract}
-                      >
-                        Approve contract
-                      </Button>
-                      <Popconfirm
-                        title="Are you sure?"
-                        onConfirm={cancelContract}
-                        okText="Yes, Cancel"
-                        cancelText="No"
-                        disabled={isCanceledOrApproved}
-                      >
-                        <Button danger disabled={isCanceledOrApproved}>
-                          Cancel contract
+                      {contract?.status === EContractStatus.approved && (
+                        <Button type="primary" onClick={previewPDFContract}>
+                          View PDF
                         </Button>
-                      </Popconfirm>
+                      )}
+                      {contract?.status !== EContractStatus.approved && (
+                        <>
+                          <Button
+                            type="primary"
+                            disabled={
+                              contract?.status !== EContractStatus.signed || isCanceledOrApproved
+                            }
+                            onClick={approveContract}
+                          >
+                            Approve
+                          </Button>
+                          <Popconfirm
+                            title="Are you sure?"
+                            onConfirm={cancelContract}
+                            okText="Yes, Cancel"
+                            cancelText="No"
+                            disabled={isCanceledOrApproved}
+                          >
+                            <Button danger disabled={isCanceledOrApproved}>
+                              Cancel
+                            </Button>
+                          </Popconfirm>
+                          <Button
+                            type="dashed"
+                            disabled={
+                              contract?.status !== EContractStatus.signed ||
+                              contract?.status === EContractStatus.canceled
+                            }
+                            onClick={previewPDFContract}
+                          >
+                            Preview
+                          </Button>
+                        </>
+                      )}
                     </Space>
                   </Col>
                 </Row>
@@ -244,6 +267,7 @@ const ContractForm = (): React.ReactElement => {
                         label="Upload ID Photo front side"
                         valuePropName="fileList"
                         getValueFromEvent={(e) => e.fileList}
+                        rules={[{ required: true, message: "Please, upload the photo" }]}
                       >
                         <Upload
                           name="front"
@@ -267,6 +291,7 @@ const ContractForm = (): React.ReactElement => {
                         label="Upload ID Photo back side"
                         valuePropName="fileList"
                         getValueFromEvent={(e) => e.fileList}
+                        rules={[{ required: true, message: "Please, upload the photo" }]}
                       >
                         <Upload
                           name="back"
