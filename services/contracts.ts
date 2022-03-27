@@ -14,7 +14,7 @@ const getContracts = (): SWRResponse<TContract[], Error> => {
 
 const getContract = (id: string): SWRResponse<TContract, Error> => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const response = useSWR<TContract, Error>(`${API_URL}/contract/${id}`);
+  const response = useSWR<TContract, Error>(`${API_URL}/contract/${id}`, { refreshInterval: 0 });
 
   return response;
 };
