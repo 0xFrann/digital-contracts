@@ -54,7 +54,7 @@ const ContractsListPage = (): React.ReactElement => {
             onClick={() => copyLink(id)}
             style={{ fontSize: "20px", color: theme.default.primaryColor }}
           />
-          <a href={`${DOMAIN_URL}/contract/pdf/${id}`} target="_blank" rel="noreferrer">
+          <a href={`/contract/pdf/${id}`} target="_blank" rel="noreferrer">
             <EyeOutlined style={{ fontSize: "20px", color: theme.default.primaryColor }} />
           </a>
           <a href={`/contract/${id}`} target="_blank" rel="noreferrer">
